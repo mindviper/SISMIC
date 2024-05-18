@@ -1,0 +1,53 @@
+mov #vector,R5 ;incializar R5 com o endereço do vetor
+			inc R5 ;incrementa R6 para comecar no endereco correto
+			mov R5, R6  ;preserva endereco de inicio;
+			mov #12, R7 ;comprimento da string
+			mov #0, R9 ;indicador de troca
+			mov #11, R12; conta comparacoes na passada
+			call #ORDENA ;chamar sub-rotina
+			jmp $ ;travar execução
+			nop ;exigido pelo montador
+;
+ORDENA:
+			mov.b 	@R6+, R10 ; coloca dado do char n em R10
+			mov.b 	@R6, R11 ;coloca dado do char n+1 em R11
+			cmp 	R10, R11 ;compara R10 com R11, se R10 > R11, N=0
+			jc  	SEM_TROCA ;pula para proxima comparacao se R10 < R11
+ 			cmp 	R10, R11 ;compara novamente
+			jeq 	SEM_TROCA ;pula se R10 = R11
+
+			mov.b 	R11,-1(R6); coloca o char menor no valor anterior menor de memoria
+			mov.b 	R10,0(R6) ; coloca o char maior no proximo valor de memoria
+			mov 	#1, R9 ; indica que houve troca
+			jmp 	ANALISE ; pula para a subrot de analise
+
+
+
+
+
+SEM_TROCA:
+ 			jmp  	ANALISE ;pula para a subrot ANALISE se faltarem 0 comparacoes na passada
+
+
+ANALISE:
+			dec 	R12 ;decrementa numero de comparacoes restantes
+			jnz 	ORDENA ;continua o programa se restarem passadas
+
+			mov 	#11, R12 ;reinica contador de comparacoes
+			tst 	R9 ;testa se houveram trocas
+			mov		#0, R9 ;reinicia flag de troca
+			jz 		END ;finaliza o programa
+
+			mov 	R5, R6 ;reinicia os enderecos na memoria
+			jmp 	ORDENA ;continua ordenando se faltarem passadas
+
+END:
+			jmp 	END ;cria um ciclo infinito
+
+
+
+ Ret
+
+
+		.data; Declarar vetor com a concatenação dos nomes completos da equipe
+vector: .byte 12, "PSJCJSIRESLF"
